@@ -1,0 +1,14 @@
+{
+  "name": "batf",
+  "version": "0.1.0",
+  "description": "Barely a Test Framework - just enough to perform barebones tests without any cruft",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [ "batf", "test", "framework", "minimal" ],
+  "author": "Alex Alksne <alex.alksne@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aato/batf"
+  }
+}
