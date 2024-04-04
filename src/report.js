@@ -1,27 +1,30 @@
 const normalizeObject = require('./normalize-object');
 
 function report(results) {
-  let str = '';
+  const lines = [];
 
-  for(const unit of Object.keys(results)) {
-    str += `${unit}\n`
+  for(const file of Object.keys(results.files)) {
+    lines.push(file);
 
-    results[unit] = results[unit].sort((a, b) => b.success - a.success)
+    for(const describe of Object.keys(results.files[file].describes)) {
+      const { its } = results.files[file].describes[describe];
 
-    for(const result of results[unit]) {
-      const { description, success, expected, actual } = result;
-      
-      if(success) {
-        str += `PASS: ${description}\n`;
-      } else {
-        str += `FAIL: ${description}\n`;
-        str += `  expected: ${JSON.stringify(normalizeObject(expected))}\n`;
-        str += `  actual:   ${JSON.stringify(normalizeObject(actual))}\n`;
+      lines.push(describe)
+      for(const { description, result: { success, expected, actual } } of its) {
+        if(success) {
+          lines.push(`PASS: ${description}`);
+        } else {
+          lines.push(`FAIL: ${description}`);
+          lines.push(`  expected: ${JSON.stringify(normalizeObject(expected))}`);
+          lines.push(`  actual:   ${JSON.stringify(normalizeObject(actual))}`);
+        }
       }
     }
+
+    lines.push('')
   }
 
-  return str;
+  return lines.join('\n');
 }
 
 module.exports = report;

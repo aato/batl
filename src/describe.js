@@ -1,13 +1,13 @@
 const results = require('./results');
-const report = require('./report');
 
-const describe = (unit, tests) => {
-  results.results[unit] = [];
-  results.currentUnit = unit;
+const describe = async (describe, registerTests) => {
+  results.currentDescribe = describe;
+  results.files[results.currentFile].describes[results.currentDescribe] = {
+    its: [],
+    beforeAll: null,
+  }
 
-  tests();
-
-  console.log(report(results.results));
+  registerTests();
 }
 
 module.exports = describe;

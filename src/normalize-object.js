@@ -1,4 +1,6 @@
 function normalizeObject(obj) {
+  if(typeof obj !== 'object') return obj;
+
   const integerKeys = Object.keys(obj).filter(key => String(Math.floor(Number(key))) === key && Number(key) >= 0).sort((a, b) => Number(a) - Number(b));
   const otherKeys = Object.keys(obj).filter(key => !(String(Math.floor(Number(key))) === key && Number(key) >= 0)).sort();
 
