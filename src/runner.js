@@ -12,8 +12,9 @@ function allPassed(results) {
   for(const file of Object.keys(results.files)) {
     for(const describe of Object.keys(results.files[file].describes)) {
       const { its } = results.files[file].describes[describe];
-      for(const { result: { success } } of its) {
-        if(!success) return false;
+      for(const it of Object.keys(its)) {
+        const { expects } = its[it];
+        if(!expects.every(e => e.success)) return false;
       }
     }
   }
@@ -57,11 +58,15 @@ async function main() {
   }
   results.currentFile = null;
   results.currentDescribe = null;
+  results.currentIt = null;
 
   for(const file of files) {
+    results.currentFile = file;
+
     const { describes } = results.files[file];
     for(const describe of Object.keys(describes)) {
-      const { its, beforeAll, results } = describes[describe];
+      const { its, beforeAll } = describes[describe];
+      results.currentDescribe = describe;
 
       if(beforeAll) {
         if(isAsyncFunction(beforeAll)) {
@@ -71,26 +76,14 @@ async function main() {
         }
       }
 
-      for(const it of its) {
-        const { test } = it;
-        try {
-          if(isAsyncFunction(test)) {
-            await test()
-          } else {
-            test();
-          }
+      for(const it of Object.keys(its)) {
+        const { test } = its[it];
+        results.currentIt = it;
 
-          it.result = { 
-            success: true
-          };
-        } catch(err) {
-          const { actual, expected } = JSON.parse(err.message);
-      
-          it.result = { 
-            success: false,
-            expected,
-            actual
-          };
+        if(isAsyncFunction(test)) {
+          await test()
+        } else {
+          test();
         }
       }
     }
@@ -99,7 +92,6 @@ async function main() {
   console.log(report(results));
 
   const exitCode = allPassed(results) ? 0 : 1;
-
   process.exit(exitCode)
 }
 

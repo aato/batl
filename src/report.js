@@ -1,5 +1,9 @@
 const normalizeObject = require('./normalize-object');
 
+function allPassed(expects) {
+  return expects.every(e => e.success)
+}
+
 function report(results) {
   const lines = [];
 
@@ -10,13 +14,17 @@ function report(results) {
       const { its } = results.files[file].describes[describe];
 
       lines.push(describe)
-      for(const { description, result: { success, expected, actual } } of its) {
-        if(success) {
+      for(const it of Object.keys(its)) {
+        const { description, expects } = its[it];
+
+        if(allPassed(expects)) {
           lines.push(`PASS: ${description}`);
         } else {
           lines.push(`FAIL: ${description}`);
-          lines.push(`  expected: ${JSON.stringify(normalizeObject(expected))}`);
-          lines.push(`  actual:   ${JSON.stringify(normalizeObject(actual))}`);
+          for(const { expected, actual } of expects.filter(e => !e.success)) {
+            lines.push(`  expected: ${JSON.stringify(normalizeObject(expected))}`);
+            lines.push(`  actual:   ${JSON.stringify(normalizeObject(actual))}`);
+          }
         }
       }
     }
