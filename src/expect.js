@@ -1,4 +1,5 @@
-const results = require('./results')
+const recordSuccess = require('./record-success')
+const recordFailure = require('./record-failure');
 
 const expect = (actual) => {
   this.actual = this.actual || null;
@@ -33,20 +34,6 @@ const expect = (actual) => {
   }
 
   return this;
-}
-
-function recordSuccess() {
-  results.files[results.currentFile].describes[results.currentDescribe].its[results.currentIt].expects.push({
-    success: true
-  });
-}
-
-function recordFailure(expected, actual) {
-  results.files[results.currentFile].describes[results.currentDescribe].its[results.currentIt].expects.push({
-    success: false,
-    expected,
-    actual
-  });
 }
 
 module.exports = expect;

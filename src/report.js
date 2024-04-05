@@ -5,7 +5,7 @@ function allPassed(expects) {
 }
 
 function report(results) {
-  const lines = [];
+  let lines = [];
 
   for(const file of Object.keys(results.files)) {
     lines.push(file);
@@ -21,9 +21,13 @@ function report(results) {
           lines.push(`PASS: ${description}`);
         } else {
           lines.push(`FAIL: ${description}`);
-          for(const { expected, actual } of expects.filter(e => !e.success)) {
-            lines.push(`  expected: ${JSON.stringify(normalizeObject(expected))}`);
-            lines.push(`  actual:   ${JSON.stringify(normalizeObject(actual))}`);
+          for(const { expected, actual, exception } of expects.filter(e => !e.success)) {
+            if(exception) {
+              lines.push(`  uncaught exception: ${exception}`)
+            } else {
+              lines.push(`  expected: ${JSON.stringify(normalizeObject(expected))}`);
+              lines.push(`  actual:   ${JSON.stringify(normalizeObject(actual))}`);
+            }
           }
         }
       }
@@ -31,6 +35,8 @@ function report(results) {
 
     lines.push('')
   }
+
+  lines = lines.slice(0, lines.length - 1);
 
   return lines.join('\n');
 }

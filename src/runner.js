@@ -3,6 +3,8 @@ const fs = require('fs')
 
 const results = require('./results');
 const report = require('./report')
+const recordFailure = require('./record-failure');
+const recordUncaughtException = require('./record-uncaught-exception');
 
 function isAsyncFunction(func) {
   return func.constructor === (async function() {}).constructor;
@@ -80,10 +82,14 @@ async function main() {
         const { test } = its[it];
         results.currentIt = it;
 
-        if(isAsyncFunction(test)) {
-          await test()
-        } else {
-          test();
+        try {
+          if(isAsyncFunction(test)) {
+            await test()
+          } else {
+            test();
+          }
+        } catch(err) {
+          recordUncaughtException(err)
         }
       }
     }

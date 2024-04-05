@@ -1,6 +1,6 @@
 {
   "name": "batf",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Barely a Test Framework - just enough to perform barebones tests without any cruft",
   "main": "index.js",
   "scripts": {},
