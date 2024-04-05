@@ -3,12 +3,8 @@ const fs = require('fs')
 
 const results = require('./results');
 const report = require('./report')
-const recordFailure = require('./record-failure');
 const recordUncaughtException = require('./record-uncaught-exception');
-
-function isAsyncFunction(func) {
-  return func.constructor === (async function() {}).constructor;
-}
+const isAsyncFunction = require('./is-async-function');
 
 function allPassed(results) {
   for(const file of Object.keys(results.files)) {

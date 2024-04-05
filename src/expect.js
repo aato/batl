@@ -1,5 +1,7 @@
 const recordSuccess = require('./record-success')
 const recordFailure = require('./record-failure');
+const { isAsyncFunction } = require('util/types');
+const { log } = require('console');
 
 const expect = (actual) => {
   this.actual = this.actual || null;
@@ -31,6 +33,29 @@ const expect = (actual) => {
     }
 
     recordSuccess();
+  }
+
+  this.withArguments = function(...args) {
+    this.functionArgs = args;
+
+    return this;
+  }
+
+  this.toThrow = async function() {
+    this.functionArgs = this.functionArgs || [];
+
+    try {
+      if(isAsyncFunction(this.actual)) {
+        await this.actual(...this.functionArgs)
+      } else {
+        this.actual(...this.functionArgs)
+      }
+
+      recordFailure(`${this.actual.name}(${this.functionArgs.join(', ')}) to throw`, `${this.actual.name}(${this.functionArgs.join(', ')}) didn't throw`)
+      return;
+    } catch(err) {
+      recordSuccess();
+    }
   }
 
   return this;
