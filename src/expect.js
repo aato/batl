@@ -1,7 +1,6 @@
 const recordSuccess = require('./record-success')
 const recordFailure = require('./record-failure');
 const { isAsyncFunction } = require('util/types');
-const { log } = require('console');
 
 const expect = (actual) => {
   this.actual = this.actual || null;
@@ -9,9 +8,24 @@ const expect = (actual) => {
   this.actual = actual;
 
   this.toBe = function(expected) {
-
     if(this.actual !== expected) {
-      recordFailure(expected, actual)
+      recordFailure(toBeToString(this.actual, expected), this.actual)
+    } else {
+      recordSuccess();
+    }
+  }
+
+  this.toBeArray = function() {
+    if(!(this.actual instanceof Array)) {
+      recordFailure(toBeArrayToString(this.actual), `${this.actual} is not an array`)
+    } else {
+      recordSuccess();
+    }
+  }
+
+  this.toBeObject = function() {
+    if(!(this.actual instanceof Object)) {
+      recordFailure(toBeObjectToString(this.actual), `${this.actual} is not an object`)
     } else {
       recordSuccess();
     }
@@ -51,7 +65,10 @@ const expect = (actual) => {
         this.actual(...this.functionArgs)
       }
 
-      recordFailure(`${this.actual.name}(${this.functionArgs.join(', ')}) to throw`, `${this.actual.name}(${this.functionArgs.join(', ')}) didn't throw`)
+      recordFailure(
+        `${toThrowToString(this.actual.name, this.functionArgs)} to throw`,
+        `${toThrowToString(this.actual.name, this.functionArgs)} didn't throw`
+      )
       return;
     } catch(err) {
       recordSuccess();
@@ -59,6 +76,22 @@ const expect = (actual) => {
   }
 
   return this;
+}
+
+function toThrowToString(funcName, funcArgs) {
+  return `${funcName}(${funcArgs.join(', ')})`
+}
+
+function toBeToString(expected, actual) {
+  return `expect(${JSON.stringify(expected)}).toBe(${JSON.stringify(actual)})`;
+}
+
+function toBeArrayToString(expected, actual) {
+  return `expect(${JSON.stringify(expected)}).toBeArray()`;
+}
+
+function toBeObjectToString(expected, actual) {
+  return `expect(${JSON.stringify(expected)}).toBeObject()`;
 }
 
 module.exports = expect;

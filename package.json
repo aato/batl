@@ -1,13 +1,18 @@
 {
   "name": "batf",
-  "version": "1.3.1",
+  "version": "1.4.1",
   "description": "Barely a Test Framework - just enough to perform barebones tests without any cruft",
   "main": "index.js",
   "scripts": {},
   "bin": {
     "batf": "./bin/batf.js"
   },
-  "keywords": [ "batf", "test", "framework", "minimal" ],
+  "keywords": [
+    "batf",
+    "test",
+    "framework",
+    "minimal"
+  ],
   "author": "Alex Alksne <alex.alksne@gmail.com>",
   "license": "MIT",
   "repository": {

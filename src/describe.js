@@ -5,6 +5,8 @@ const describe = async (describe, registerTests) => {
   results.files[results.currentFile].describes[results.currentDescribe] = {
     its: {},
     beforeAll: null,
+    afterAll: null,
+    beforeEach: null
   }
 
   registerTests();

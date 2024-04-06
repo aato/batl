@@ -63,7 +63,7 @@ async function main() {
 
     const { describes } = results.files[file];
     for(const describe of Object.keys(describes)) {
-      const { its, beforeAll } = describes[describe];
+      const { its, beforeAll, afterAll, beforeEach } = describes[describe];
       results.currentDescribe = describe;
 
       if(beforeAll) {
@@ -73,10 +73,20 @@ async function main() {
           beforeAll();
         }
       }
+      // TODO: catch and record exceptions
 
       for(const it of Object.keys(its)) {
         const { test } = its[it];
         results.currentIt = it;
+
+        if(beforeEach) {
+          if(isAsyncFunction(beforeEach)) {
+            await beforeEach();
+          } else {
+            beforeEach();
+          }
+        }
+        // TODO: catch and record exceptions
 
         try {
           if(isAsyncFunction(test)) {
@@ -88,6 +98,15 @@ async function main() {
           recordUncaughtException(err)
         }
       }
+
+      if(afterAll) {
+        if(isAsyncFunction(afterAll)) {
+          await afterAll();
+        } else {
+          afterAll();
+        }
+      }
+      // TODO: catch and record exceptions
     }
   }
 
