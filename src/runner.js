@@ -42,7 +42,7 @@ async function main() {
 
   for(const file of files) {
     if(!fs.existsSync(file)) {
-      throw new Error(`batf error: ${file} doesn't exist`)
+      throw new Error(`batl error: ${file} doesn't exist`)
     }
   }
 

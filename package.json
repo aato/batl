@@ -1,14 +1,14 @@
 {
-  "name": "batf",
+  "name": "batl",
   "version": "1.5.1",
-  "description": "Barely a Test Framework - just enough to perform barebones tests without any cruft",
+  "description": "Barely a Test Library - just enough to perform barebones tests without any cruft",
   "main": "index.js",
   "scripts": {},
   "bin": {
-    "batf": "./bin/batf.js"
+    "batl": "./bin/batl.js"
   },
   "keywords": [
-    "batf",
+    "batl",
     "test",
     "framework",
     "minimal"
@@ -17,6 +17,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/aato/batf"
+    "url": "https://github.com/aato/batl"
   }
 }
