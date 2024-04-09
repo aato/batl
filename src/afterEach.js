@@ -1,9 +1,9 @@
 const results = require('./results');
 
-async function beforeEach(beforeEachFunc) {
+async function beforeEach(afterEachFunc) {
   const currentDescribe = results.getCurrentDescribe();
 
-  currentDescribe.beforeEach = beforeEachFunc;
+  currentDescribe.afterEach = afterEachFunc;
 }
 
 module.exports = beforeEach;

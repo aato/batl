@@ -1,15 +1,19 @@
 const results = require('./results');
 
 const describe = async (describe, registerTests) => {
-  results.currentDescribe = describe;
-  results.files[results.currentFile].describes[results.currentDescribe] = {
+  const curDescribe = results.getCurrentDescribe();
+  curDescribe.describes[describe] = {
+    describes: {},
     its: {},
     beforeAll: null,
     afterAll: null,
     beforeEach: null
   }
+  results.currentDescribe.push(describe);
 
   registerTests();
+
+  results.currentDescribe.pop();
 }
 
 module.exports = describe;

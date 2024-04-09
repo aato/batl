@@ -8,13 +8,23 @@ const isAsyncFunction = require('./is-async-function');
 
 function allPassed(results) {
   for(const file of Object.keys(results.files)) {
-    for(const describe of Object.keys(results.files[file].describes)) {
-      const { its } = results.files[file].describes[describe];
-      for(const it of Object.keys(its)) {
-        const { expects } = its[it];
-        if(!expects.every(e => e.success)) return false;
-      }
+    if(!allPassedInDescribes(results.files[file].describes)) {
+      return false;
     }
+  }
+
+  return true;
+}
+
+function allPassedInDescribes(topLevelDescribes) {
+  for(const describe of Object.keys(topLevelDescribes)) {
+    const { describes, its } = topLevelDescribes[describe];
+    for(const it of Object.keys(its)) {
+      const { expects } = its[it];
+      if(!expects.every(e => e.success)) return false;
+    }
+
+    if(describes) return allPassedInDescribes(describes);
   }
 
   return true;
@@ -54,66 +64,89 @@ async function main() {
 
     require(file);
   }
-  results.currentFile = null;
-  results.currentDescribe = null;
-  results.currentIt = null;
+  results.currentFile = '';
+  results.currentDescribe = [];
+  results.currentIt = '';
 
   for(const file of files) {
     results.currentFile = file;
 
-    const { describes } = results.files[file];
-    for(const describe of Object.keys(describes)) {
-      const { its, beforeAll, afterAll, beforeEach } = describes[describe];
-      results.currentDescribe = describe;
-
-      if(beforeAll) {
-        if(isAsyncFunction(beforeAll)) {
-          await beforeAll();
-        } else {
-          beforeAll();
-        }
-      }
-      // TODO: catch and record exceptions
-
-      for(const it of Object.keys(its)) {
-        const { test } = its[it];
-        results.currentIt = it;
-
-        if(beforeEach) {
-          if(isAsyncFunction(beforeEach)) {
-            await beforeEach();
-          } else {
-            beforeEach();
-          }
-        }
-        // TODO: catch and record exceptions
-
-        try {
-          if(isAsyncFunction(test)) {
-            await test()
-          } else {
-            test();
-          }
-        } catch(err) {
-          recordUncaughtException(err)
-        }
-      }
-
-      if(afterAll) {
-        if(isAsyncFunction(afterAll)) {
-          await afterAll();
-        } else {
-          afterAll();
-        }
-      }
-      // TODO: catch and record exceptions
-    }
+    await runDescribes(results.files[file].describes);
   }
+
+  results.currentFile = '';
+  results.currentDescribe = [];
+  results.currentIt = '';
 
   console.log(report(results));
 
   const exitCode = allPassed(results) ? 0 : 1;
   process.exit(exitCode)
+}
+
+async function runDescribes(topLevelDescribes) {
+  for(const topLevelDescribe of Object.keys(topLevelDescribes)) {
+    results.currentDescribe.push(topLevelDescribe);
+
+    const { describes, its, beforeAll, afterAll, beforeEach, afterEach } = topLevelDescribes[topLevelDescribe];
+
+    if(beforeAll) {
+      if(isAsyncFunction(beforeAll)) {
+        await beforeAll();
+      } else {
+        beforeAll();
+      }
+    }
+    // TODO: catch and record exceptions
+
+    for(const it of Object.keys(its)) {
+      const { test } = its[it];
+      results.currentIt = it;
+
+      if(beforeEach) {
+        if(isAsyncFunction(beforeEach)) {
+          await beforeEach();
+        } else {
+          beforeEach();
+        }
+      }
+      // TODO: catch and record exceptions
+
+      try {
+        if(isAsyncFunction(test)) {
+          await test()
+        } else {
+          test();
+        }
+      } catch(err) {
+        recordUncaughtException(err)
+      }
+
+      if(afterEach) {
+        if(isAsyncFunction(afterEach)) {
+          await afterEach();
+        } else {
+          afterEach();
+        }
+      }
+      // TODO: catch and record exceptions
+    }
+
+    if(afterAll) {
+      if(isAsyncFunction(afterAll)) {
+        await afterAll();
+      } else {
+        afterAll();
+      }
+    }
+    // TODO: catch and record exceptions
+
+    if(describes) {
+      await runDescribes(describes);
+    }
+
+    results.currentDescribe.pop();
+  }
 }
 
 async function runner() {
