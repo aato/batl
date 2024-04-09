@@ -1,11 +1,11 @@
 const recordSuccess = require('./record-success')
 const recordFailure = require('./record-failure');
 const { isAsyncFunction } = require('util/types');
+const fs = require('fs')
 
 const expect = (actual) => {
-  this.actual = this.actual || null;
-
   this.actual = actual;
+  this.functionArgs = [];
 
   this.toBe = function(expected) {
     if(this.actual !== expected) {
@@ -55,9 +55,7 @@ const expect = (actual) => {
     return this;
   }
 
-  this.toThrow = async function() {
-    this.functionArgs = this.functionArgs || [];
-
+  this.toThrow = async function(regExp) {
     try {
       if(isAsyncFunction(this.actual)) {
         await this.actual(...this.functionArgs)
@@ -71,7 +69,62 @@ const expect = (actual) => {
       )
       return;
     } catch(err) {
+      if(regExp) {
+        if(err.message.match(regExp)) {
+          recordSuccess();
+        } else {
+          recordFailure(
+            `${toThrowToString(this.actual.name, this.functionArgs)} to throw with error message matching ${regExp.toString()}`,
+            `${toThrowToString(this.actual.name, this.functionArgs)} threw but error message (${err.message}) didn't match ${regExp.toString()}`
+          )
+        }
+      } else {
+        recordSuccess();
+      }
+    }
+  }
+
+  this.toMatch = function(expected) {
+    if(!this.actual.match(expected)) {
+      recordFailure(
+        `${this.actual} to match ${expected.toString()}`,
+        `${this.actual} didn't match ${expected.toString()}`,
+      );
+    } else {
       recordSuccess();
+    }
+  }
+
+  this.toNotExistInFileSystem = function() {
+    if(!fs.existsSync(this.actual)) {
+      recordSuccess();
+    } else {
+      recordFailure(
+        `${this.actual} to not exist in filesystem`,
+        `${this.actual} exists in filesystem`
+      )
+    }
+  }
+
+  this.toExistInFileSystem = function() {
+    if(!fs.existsSync(this.actual)) {
+      recordFailure(
+        `${this.actual} to exist in filesystem`,
+        `${this.actual} doesn't exist in filesystem`
+        )
+      } else {
+      recordSuccess();
+    }
+  }
+
+  this.toExist = function() {
+    if(this.actual !== undefined && this.actual !== null) {
+      recordSuccess();
+    } else {
+      recordFailure(
+        `${this.actual} to exist`,
+        `${this.actual} doesn't exist`
+      );
     }
   }
 
