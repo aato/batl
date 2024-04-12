@@ -9,7 +9,7 @@ function report(results) {
   let lines = [];
 
   for(const file of Object.keys(results.files)) {
-    lines.push(`(${file})`);
+    lines.push(`(${bold(file)})`);
 
     lines.push(...reportDescribes(results.files[file].describes))
 
@@ -34,9 +34,9 @@ function reportDescribes(topLevelDescribes) {
       const { description, expects } = its[it];
 
       if(allPassed(expects)) {
-        lines.push(`${indent()}PASS: ${description}`);
+        lines.push(`${indent()}${green('PASS')}: ${description}`);
       } else {
-        lines.push(`${indent()}FAIL: ${description}`);
+        lines.push(`${indent()}${red('FAIL')}: ${description}`);
         for(const { expected, actual, exception } of expects.filter(e => !e.success)) {
           if(exception) {
             lines.push(`${indent()}uncaught exception: ${exception}`)
@@ -64,6 +64,18 @@ function indent() {
 
 function numIndents() {
   return results.currentDescribe.length - 1;
+}
+
+function green(str) {
+  return `\x1b[32m${str}\x1b[0m`
+}
+
+function red(str) {
+  return `\x1b[31m${str}\x1b[0m`
+}
+
+function bold(str) {
+  return `\x1b[1m${str}\x1b[0m`
 }
 
 module.exports = report;

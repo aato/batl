@@ -128,6 +128,28 @@ const expect = (actual) => {
     }
   }
 
+  this.toNotExist = function() {
+    if(this.actual === undefined || this.actual === null) {
+      recordSuccess();
+    } else {
+      recordFailure(
+        `${this.actual} to not exist`,
+        `${this.actual} exists`
+      );
+    }
+  }
+
+  this.toBeInstanceOf = function(cls) {
+    if(this.actual instanceof cls) {
+      recordSuccess();
+    } else {
+      recordFailure(
+        `${this.actual} to be of class ${cls.name}`,
+        `${this.actual} was not of class ${cls.name}`,
+      )
+    }
+  }
+
   return this;
 }
 
