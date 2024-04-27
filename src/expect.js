@@ -15,6 +15,14 @@ const expect = (actual) => {
     }
   }
 
+  this.toBeBetween = function(expectedAInclusive, expectedBExclusive) {
+    if(this.actual < expectedAInclusive || this.actual >= expectedBExclusive) {
+      recordFailure(toBeBetweenToString(this.actual, expectedAInclusive, expectedBExclusive), this.actual)
+    } else {
+      recordSuccess();
+    }
+  }
+
   this.toBeArray = function() {
     if(!(this.actual instanceof Array)) {
       recordFailure(toBeArrayToString(this.actual), `${this.actual} is not an array`)
@@ -159,6 +167,10 @@ function toThrowToString(funcName, funcArgs) {
 
 function toBeToString(expected, actual) {
   return `expect(${JSON.stringify(expected)}).toBe(${JSON.stringify(actual)})`;
+}
+
+function toBeBetweenToString(actual, expectedAInclusive, expectedBExclusive) {
+  return `expect(${actual}).toBe(${expectedAInclusive}, ${expectedBExclusive})`;
 }
 
 function toBeArrayToString(expected, actual) {
