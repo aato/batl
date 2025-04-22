@@ -43,11 +43,91 @@ async function getAllFilePaths(dir) {
   return paths.flat();
 }
 
-async function main() {
-  let files = process.argv.length >= 2 ? process.argv.slice(2).map(f => path.resolve(process.cwd(), f)) : [];
+function processArgs(args) {
+  const obj = {
+    files: [],
+    onlyFiles: []
+  };
 
-  if(files.length === 0) {
-    files = (await getAllFilePaths(path.resolve(process.cwd(), 'test'))).filter(f => f.match(/.*\.test.js/))
+  const FLAGS = {
+    FILES: 'f',
+    ONLY_FILES: 'o'
+  }
+
+  function isFilesArgs(arg) {
+    return arg.toLowerCase() === `-${FLAGS.FILES}`;
+  }
+
+  function isOnlyFilesArgs(arg) {
+    return arg.toLowerCase() === `-${FLAGS.ONLY_FILES}`;
+  }
+
+  function isFlag(arg) {
+    return isFilesArgs(arg) || isOnlyFilesArgs(arg);
+  }
+
+  function extractFiles(args) {
+    const files = [];
+
+    let insideFilesArg = false;
+    for(const arg of args) {
+      if(insideFilesArg) {
+        if(isFlag(arg)) {
+          break;
+        } else {
+          files.push(arg);
+        }
+      } else {
+        if(isFilesArgs(arg)) {
+          insideFilesArg = true;
+          continue;
+        }
+      }
+    }
+
+    return files;
+  }
+
+  function extractOnlyFiles(args) {
+    const files = [];
+
+    let insideOnlyFilesArg = false;
+    for(const arg of args) {
+      if(insideOnlyFilesArg) {
+        if(isFlag(arg)) {
+          break;
+        } else {
+          files.push(arg);
+        }
+      } else {
+        if(isOnlyFilesArgs(arg)) {
+          insideOnlyFilesArg = true;
+          continue;
+        }
+      }
+    }
+
+    return files;
+  }
+
+  obj.files = extractFiles(args);
+  obj.onlyFiles = extractOnlyFiles(args);
+
+  return obj;
+}
+
+async function main() {
+  let { files, onlyFiles } = processArgs(process.argv.slice(2));
+
+  if(onlyFiles.length) {
+    files = onlyFiles;
+  }
+
+  files = files.map(f => path.resolve(process.cwd(), f))
+  
+  // If no files explicitly specified, check for all .test.js files in the current working directory..
+  if(!files.length) {
+    files = (await getAllFilePaths(path.resolve(process.cwd()))).filter(f => f.match(/.*\.test.js/))
   }
 
   for(const file of files) {
