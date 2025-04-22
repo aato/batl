@@ -1,6 +1,6 @@
 {
   "name": "batl",
-  "version": "1.8.1",
+  "version": "1.9.1",
   "description": "Barely a Test Library - just enough to perform barebones tests without any cruft",
   "main": "index.js",
   "scripts": {},
